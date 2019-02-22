@@ -1,0 +1,19 @@
+[package]
+name = "rodent-bot"
+version = "0.1.0"
+authors = ["Prokopev Alexandr <a.prokopev@qiwi.com>"]
+edition = "2018"
+
+[dependencies]
+failure = "~0.1"
+failure_derive = "~0.1"
+config = "0.9.2"
+serde_derive = "^1.0.8"
+serde = "^1.0.8"
+telegram-bot = "0.6.1"
+tokio = "0.1.15"
+tokio-core = "0.1.17"
+futures = "0.1.25"
+log = "0.4.6"
+fern = "0.5"
+chrono = "0.4.6"
