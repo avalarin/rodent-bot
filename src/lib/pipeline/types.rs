@@ -2,6 +2,10 @@ use std::sync::Arc;
 
 pub type PipelineFunction<T, E> = Fn(T, Arc<Pipeline<T, E>>) -> Result<T, E>;
 
+pub trait PipelineStage<T, E> {
+    fn process(&self, context: T, next: Arc<Pipeline<T, E>>) -> Result<T, E>;
+}
+
 pub trait Pipeline<T, E> {
     fn call(&self, context: T) -> Result<T, E>;
 }
