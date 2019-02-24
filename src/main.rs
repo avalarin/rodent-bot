@@ -34,10 +34,17 @@ fn main() {
     let pipeline = Pipelines::create();
 
     let future = api.stream().for_each(|update| {
-        let _result = pipeline.call(Context{
-            api: api.clone(),
-            update
-        });
+        let result = pipeline.call(Context::new(update));
+
+        match result {
+            Ok(context) => {
+                context.parts.iter().for_each(|part| {
+                    let _result = part.render(&api);
+                });
+                ()
+            },
+            Err(_) => ()
+        };
         Ok(())
     });
 
