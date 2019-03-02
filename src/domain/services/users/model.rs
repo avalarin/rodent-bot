@@ -6,3 +6,9 @@ pub struct User {
     pub tg_fullname: Option<String>,
     pub active: bool
 }
+
+pub struct FindOrCreateUser {
+    pub tg_id: i64,
+    pub tg_username: Option<String>,
+    pub tg_fullname: Option<String>
+}

@@ -22,24 +22,26 @@ pub mod domain;
 pub mod lib;
 pub mod schema;
 
+use std::sync::Arc;
 use futures::Stream;
 use tokio_core::reactor::Core;
 use telegram_bot::*;
 
 use domain::pipeline::Pipelines;
 use domain::context::Context;
-use std::sync::Arc;
+use domain::services::users::UsersServiceImpl;
 
 fn main() {
     let config = self::app::config::load_config().expect("Cannot load configuration");
 
     self::app::logging::setup_logging(config.debug).expect("Cannot configure logging engine");
 
-    let db = self::app::db::DB::new(config.postgres);
+    let db = Arc::new(self::app::db::DB::new(config.postgres));
+    let users = Arc::new(UsersServiceImpl::new(db.clone()));
 
     let mut core = Core::new().unwrap();
     let api = Arc::new(Api::configure(config.telegram.api_token).build(core.handle()).unwrap());
-    let pipeline = Pipelines::create(Arc::new(db));
+    let pipeline = Pipelines::create(users);
 
     let future = api.stream().for_each(|update| {
         let result = pipeline.call(Context::new(update));
