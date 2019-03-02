@@ -8,18 +8,18 @@ use crate::lib::pipeline::{Pipeline, PipelineStage};
 
 use telegram_bot::{User as TgUser};
 
-pub struct AuthorizeStage {
+pub struct IdentifyStage {
     users: Arc<UsersService>
 }
 
-impl AuthorizeStage {
+impl IdentifyStage {
     pub fn new(users: Arc<UsersService>) -> Self {
-        AuthorizeStage {
+        IdentifyStage {
             users
         }
     }
 
-    fn authorize(&self, context: Context, tg_user: TgUser) -> Result<Context, PipelineError> {
+    fn identify(&self, context: Context, tg_user: TgUser) -> Result<Context, PipelineError> {
         let tg_user_id = TelegramUtils::get_user_id_from_user(&tg_user)
             .ok_or_else(|| PipelineError::UnsupportedMessageType {})?;
 
@@ -27,18 +27,17 @@ impl AuthorizeStage {
             tg_id: tg_user_id,
             tg_username: tg_user.username,
             tg_fullname: Some(tg_user.first_name)
-        }).map(|_user| {
-            // TODO fill context here
-            context
+        }).map(|user| {
+            context.put_user(user)
         }).map_err(PipelineError::from)
     }
 }
 
-impl PipelineStage<Context, PipelineError> for AuthorizeStage {
+impl PipelineStage<Context, PipelineError> for IdentifyStage {
     fn process(&self, context: Context, next: Arc<Pipeline<Context, PipelineError>>) -> Result<Context, PipelineError> {
         TelegramUtils::get_user_from_update(&context.update)
             .ok_or_else(|| PipelineError::UnsupportedMessageType {})
-            .and_then(|user| self.authorize(context, user))
+            .and_then(|user| self.identify(context, user))
             .and_then(|ctx| next.call(ctx))
     }
 }
