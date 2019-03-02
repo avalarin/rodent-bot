@@ -1,2 +1,4 @@
 debug = false
 
+[postgres]
+url = "postgres://postgres:password@localhost/rodent"

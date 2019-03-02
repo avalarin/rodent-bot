@@ -17,3 +17,4 @@ futures = "0.1.25"
 log = "0.4.6"
 fern = "0.5"
 chrono = "0.4.6"
+diesel = { version = "1.0.0", features = ["postgres"] }

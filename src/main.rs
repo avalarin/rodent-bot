@@ -6,15 +6,21 @@ extern crate tokio_core;
 extern crate chrono;
 
 #[macro_use]
+extern crate failure;
+#[macro_use]
 extern crate serde_derive;
 
 #[macro_use]
 extern crate log;
 extern crate fern;
 
+#[macro_use]
+extern crate diesel;
+
 pub mod app;
 pub mod domain;
 pub mod lib;
+pub mod schema;
 
 use futures::Stream;
 use tokio_core::reactor::Core;
@@ -29,9 +35,11 @@ fn main() {
 
     self::app::logging::setup_logging(config.debug).expect("Cannot configure logging engine");
 
+    let db = self::app::db::DB::new(config.postgres);
+
     let mut core = Core::new().unwrap();
     let api = Arc::new(Api::configure(config.telegram.api_token).build(core.handle()).unwrap());
-    let pipeline = Pipelines::create();
+    let pipeline = Pipelines::create(Arc::new(db));
 
     let future = api.stream().for_each(|update| {
         let result = pipeline.call(Context::new(update));
@@ -43,7 +51,10 @@ fn main() {
                 });
                 ()
             },
-            Err(_) => ()
+            Err(err) => {
+                error!("Uncaught error: {}", err);
+                ()
+            }
         };
         Ok(())
     });

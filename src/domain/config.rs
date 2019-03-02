@@ -4,7 +4,13 @@ pub struct TelegramConfiguration {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct PostgresConfiguration {
+    pub url: String
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Configuration {
     pub debug: bool,
-    pub telegram: TelegramConfiguration
+    pub telegram: TelegramConfiguration,
+    pub postgres: PostgresConfiguration
 }
