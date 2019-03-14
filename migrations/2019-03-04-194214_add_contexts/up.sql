@@ -1,0 +1,6 @@
+CREATE TABLE stored_contexts (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL UNIQUE,
+  updated_on TIMESTAMP NOT NULL,
+  data JSONB NOT NULL
+);

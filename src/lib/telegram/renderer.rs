@@ -24,3 +24,9 @@ impl Part for RequestPart {
         Ok(())
     }
 }
+
+impl <R: telegram_bot::Request + 'static> From<R> for Box<Part> {
+    fn from(req: R) -> Self {
+        Box::new(RequestPart::new(req))
+    }
+}

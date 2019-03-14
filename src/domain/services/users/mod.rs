@@ -19,5 +19,5 @@ impl From<diesel::result::Error> for UsersServiceError {
 }
 
 pub trait UsersService {
-    fn find_or_create(&self, data: FindOrCreateUser) -> Result<User, UsersServiceError>;
+    fn find_or_create(&self, data: FindOrCreateUser) -> Result<UserWithRoles, UsersServiceError>;
 }

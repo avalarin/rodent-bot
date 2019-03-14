@@ -3,7 +3,6 @@ use std::sync::Arc;
 use crate::domain::context::Context;
 use crate::domain::error::PipelineError;
 use crate::lib::pipeline::{Pipeline, PipelineStage};
-use crate::lib::telegram::RequestPart;
 use telegram_bot::{UpdateKind, CanReplySendMessage};
 
 pub struct HandleErrorStage {
@@ -22,10 +21,10 @@ impl PipelineStage<Context, PipelineError> for HandleErrorStage {
         next.call(context).or_else(|error| {
             error!("Error has occurred: {}", error);
             if let UpdateKind::Message(message) = &copy.update.kind {
-                let part = RequestPart::new(message.text_reply(
+                let reply = message.text_reply(
                     format!("Error has occurred: {}", error)
-                ));
-                Ok(copy.put_part(Box::new(part)))
+                );
+                Ok(copy.put_part(reply))
             } else {
                 Ok(copy)
             }

@@ -4,6 +4,7 @@ extern crate futures;
 extern crate telegram_bot;
 extern crate tokio_core;
 extern crate chrono;
+extern crate rand;
 
 #[macro_use]
 extern crate failure;
@@ -29,7 +30,10 @@ use telegram_bot::*;
 
 use domain::pipeline::Pipelines;
 use domain::context::Context;
-use domain::services::users::UsersServiceImpl;
+use domain::services::{
+    users::UsersServiceImpl,
+    context::ContextServiceImpl
+};
 
 fn main() {
     let config = self::app::config::load_config().expect("Cannot load configuration");
@@ -38,10 +42,11 @@ fn main() {
 
     let db = Arc::new(self::app::db::DB::new(config.postgres));
     let users = Arc::new(UsersServiceImpl::new(db.clone()));
+    let context = Arc::new(ContextServiceImpl::new(db.clone()));
+    let pipeline = Pipelines::create(users, context);
 
     let mut core = Core::new().unwrap();
     let api = Arc::new(Api::configure(config.telegram.api_token).build(core.handle()).unwrap());
-    let pipeline = Pipelines::create(users);
 
     let future = api.stream().for_each(|update| {
         let result = pipeline.call(Context::new(update));
