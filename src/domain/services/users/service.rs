@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::diesel::insert_into;
+use crate::diesel::update;
 use crate::diesel::prelude::*;
 
 use crate::domain::db::DataBaseSource;
@@ -29,6 +30,34 @@ impl UsersService for UsersServiceImpl {
                         .map(|roles| UserWithRoles { user, roles })
                 })
         })
+    }
+
+    fn confirm_email(&self, user_id: i32, email: String) -> Result<(), UsersServiceError> {
+        use crate::schema::users;
+
+        let conn = self.db.get_connection();
+
+        users::table
+            .filter(users::id.eq(user_id))
+            .first::<User>(&conn)
+            .optional()
+            .map_err(From::from)
+            .and_then(|u| u.ok_or(UsersServiceError::UserNotFound { user_id }))
+            .and_then(Self::ensure_no_email)
+            .and_then(|_| {
+                update(users::table.filter(users::id.eq(user_id)))
+                    .set(users::email.eq(&email))
+                    .execute(&conn)
+                    .map_err(From::from)
+            })
+            .map_err(|err| {
+                info!("Cannot update user {}: {}", user_id, err);
+                err
+            })
+            .map(|_| {
+                info!("User {} has been confirmed with email {}", user_id, email);
+                ()
+            })
     }
 }
 
@@ -82,5 +111,13 @@ impl UsersServiceImpl {
             .select(roles::name)
             .load::<String>(&conn)
             .map_err(|err| UsersServiceError::DataBaseError { inner: Box::new(err) })
+    }
+
+    fn ensure_no_email(user: User) -> Result<User, UsersServiceError> {
+        if user.email.is_some() {
+            Err(UsersServiceError::UserAlreadyConfirmed { user_id: user.id })
+        } else {
+            Ok(user)
+        }
     }
 }

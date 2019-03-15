@@ -23,12 +23,17 @@ pub enum PipelineError {
     },
     #[fail(display = "internal error: user is required")]
     UserIsRequired { },
+    #[fail(display = "user service error: {}", inner)]
+    UsersServiceError {
+        inner: Box<crate::domain::services::users::UsersServiceError>,
+    }
 }
 
 impl From<UsersServiceError> for PipelineError {
     fn from(err: UsersServiceError) -> PipelineError {
         match err {
-            UsersServiceError::DataBaseError { inner } => PipelineError::DataBaseDieselError { inner }
+            UsersServiceError::DataBaseError { inner } => PipelineError::DataBaseDieselError { inner },
+            _ => PipelineError::UsersServiceError { inner: Box::new(err) }
         }
     }
 }

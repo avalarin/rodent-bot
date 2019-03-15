@@ -13,7 +13,7 @@ pub enum ConfirmationResolverState {
     New { context: Context, message: Message, user: UserWithRoles },
     CorrectEmailEntered { context: Context, message: Message, user: UserWithRoles, email: String },
     IncorrectEmailEntered { context: Context, message: Message, user: UserWithRoles },
-    CorrectCodeEntered { context: Context, message: Message, user: UserWithRoles, entered_code: String, requested_code: String },
+    CorrectCodeEntered { context: Context, message: Message, user: UserWithRoles, entered_code: String, requested_code: String, email: String },
     IncorrectCodeEntered { context: Context, message: Message, user: UserWithRoles },
 }
 

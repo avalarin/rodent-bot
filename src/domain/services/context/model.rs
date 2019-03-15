@@ -8,7 +8,7 @@ pub struct StoredContext {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ConfirmationStoredState {
     EmailRequested { requested_at: DateTime<Utc> },
-    EmailSent { sent_at: DateTime<Utc>, code: String, tries: i32 }
+    EmailSent { sent_at: DateTime<Utc>, email: String, code: String, tries: i32 }
 }
 
 impl StoredContext {
@@ -34,7 +34,7 @@ impl ConfirmationStoredState {
         ConfirmationStoredState::EmailRequested { requested_at: Utc::now() }
     }
 
-    pub fn sent(code: String) -> ConfirmationStoredState {
-        ConfirmationStoredState::EmailSent { code, sent_at: Utc::now(), tries: 0 }
+    pub fn sent(email: String, code: String) -> ConfirmationStoredState {
+        ConfirmationStoredState::EmailSent { email, code, sent_at: Utc::now(), tries: 0 }
     }
 }

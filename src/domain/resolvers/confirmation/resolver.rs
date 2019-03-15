@@ -6,6 +6,7 @@ use crate::lib::telegram::TelegramUtils;
 use crate::domain::error::PipelineError;
 use crate::domain::context::Context;
 use crate::domain::services::context::ConfirmationStoredState;
+use crate::domain::side_effects::UserActionsSideEffects::ConfirmEmail;
 
 use super::*;
 
@@ -46,7 +47,7 @@ impl ConfirmationResolver {
                 Ok(context.put_side_effect(message.text_reply(
                     format!("You have been emailed. Please, check your inbox and send confirmation code in response")
                 )).replace_stored_context(|stored_context|
-                    stored_context.put_confirmation_state(ConfirmationStoredState::sent(new_confirmation_code))
+                    stored_context.put_confirmation_state(ConfirmationStoredState::sent(email, new_confirmation_code))
                 ))
             },
 
@@ -59,13 +60,15 @@ impl ConfirmationResolver {
 
             ConfirmationResolverState::CorrectCodeEntered {
                 context, user, message,
-                entered_code, requested_code
+                entered_code, requested_code, email
             } => {
                 if entered_code == requested_code {
                     info!("User {} has entered a correct confirmation code", user.user.id);
                     Ok(context.put_side_effect(message.text_reply(
                         format!("CONFIRMED")
-                    )).replace_stored_context(|stored_context|
+                    )).put_side_effect(
+                        ConfirmEmail { user_id: user.user.id, email }
+                    ).replace_stored_context(|stored_context|
                         stored_context.clear_confirmation_state()
                     ))
                 } else {
@@ -109,9 +112,9 @@ impl ConfirmationResolver {
                         None => ConfirmationResolverState::IncorrectEmailEntered { context, message, user },
                     },
 
-                    Some(ConfirmationStoredState::EmailSent { code, .. }) => match Self::get_valid_code_from_message(&message) {
+                    Some(ConfirmationStoredState::EmailSent { code, email, .. }) => match Self::get_valid_code_from_message(&message) {
                         // Valid code found
-                        Some(entered_code) => ConfirmationResolverState::CorrectCodeEntered { context, message, user, entered_code, requested_code: code },
+                        Some(entered_code) => ConfirmationResolverState::CorrectCodeEntered { context, message, user, entered_code, requested_code: code, email },
 
                         // Incorrect code entered
                         None => ConfirmationResolverState::IncorrectCodeEntered { context, message, user },

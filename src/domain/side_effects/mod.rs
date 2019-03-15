@@ -1,10 +1,13 @@
 mod telegram;
+mod user_actions;
 
 pub use telegram::*;
+pub use user_actions::*;
 
 #[derive(Debug, PartialEq)]
 pub enum SideEffect {
     Telegram(telegram::TelegramSideEffect),
+    UserActions(user_actions::UserActionsSideEffects),
     Dummy(String)
 }
 

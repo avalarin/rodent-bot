@@ -22,6 +22,7 @@ impl Pipelines {
     ) -> Arc<Pipeline<Context, PipelineError>> {
         PipelineBuilder::new()
             .next_stage(TelegramSideEffectsStage::new(api))
+            .next_stage(UserActionsSideEffectsStage::new(users.clone()))
             .next_stage(HandleErrorStage::new())
             .next_stage(LoggingStage::new())
             .next_stage(IdentifyStage::new(users))
