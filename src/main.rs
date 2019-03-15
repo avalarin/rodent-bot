@@ -40,29 +40,20 @@ fn main() {
 
     self::app::logging::setup_logging(config.debug).expect("Cannot configure logging engine");
 
-    let db = Arc::new(self::app::db::DB::new(config.postgres));
-    let users = Arc::new(UsersServiceImpl::new(db.clone()));
-    let context = Arc::new(ContextServiceImpl::new(db.clone()));
-    let pipeline = Pipelines::create(users, context);
-
     let mut core = Core::new().unwrap();
     let api = Arc::new(Api::configure(config.telegram.api_token).build(core.handle()).unwrap());
 
-    let future = api.stream().for_each(|update| {
-        let result = pipeline.call(Context::new(update));
+    let db = Arc::new(self::app::db::DB::new(config.postgres));
+    let users = Arc::new(UsersServiceImpl::new(db.clone()));
+    let context = Arc::new(ContextServiceImpl::new(db.clone()));
+    let pipeline = Pipelines::create(users, context, api.clone());
 
-        match result {
-            Ok(context) => {
-                context.parts.iter().for_each(|part| {
-                    let _result = part.render(&api);
-                });
-                ()
-            },
-            Err(err) => {
+    let future = api.stream().for_each(|update| {
+        let _ = pipeline.call(Context::new(update))
+            .map_err(|err| {
                 error!("Uncaught error: {}", err);
-                ()
-            }
-        };
+                err
+            });
         Ok(())
     });
 

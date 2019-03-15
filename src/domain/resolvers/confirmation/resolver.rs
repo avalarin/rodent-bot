@@ -31,7 +31,7 @@ impl ConfirmationResolver {
 
             ConfirmationResolverState::New { context, user, message } => {
                 info!("User {} is not confirmed and email is not present. User's email has been requested.", user.user.id);
-                Ok(context.put_part(message.text_reply(
+                Ok(context.put_side_effect(message.text_reply(
                     format!("You have to confirm email. Please, enter your email in response")
                 )).replace_stored_context(|stored_context|
                     stored_context.put_confirmation_state(ConfirmationStoredState::requested())
@@ -43,7 +43,7 @@ impl ConfirmationResolver {
 
                 info!("Email with confirmation code for user {} has been sent to {}", user.user.id, &email);
                 info!("TODO DELETE THIS, confirmation code is {}", new_confirmation_code); // TODO send email really
-                Ok(context.put_part(message.text_reply(
+                Ok(context.put_side_effect(message.text_reply(
                     format!("You have been emailed. Please, check your inbox and send confirmation code in response")
                 )).replace_stored_context(|stored_context|
                     stored_context.put_confirmation_state(ConfirmationStoredState::sent(new_confirmation_code))
@@ -52,7 +52,7 @@ impl ConfirmationResolver {
 
             ConfirmationResolverState::IncorrectEmailEntered { context, user, message } => {
                 info!("User {} has entered a incorrect email in message {:?}", user.user.id, message);
-                Ok(context.put_part(message.text_reply(
+                Ok(context.put_side_effect(message.text_reply(
                     format!("You have entered a incorrect email. Please, check input and try again.")
                 )))
             },
@@ -63,14 +63,14 @@ impl ConfirmationResolver {
             } => {
                 if entered_code == requested_code {
                     info!("User {} has entered a correct confirmation code", user.user.id);
-                    Ok(context.put_part(message.text_reply(
+                    Ok(context.put_side_effect(message.text_reply(
                         format!("CONFIRMED")
                     )).replace_stored_context(|stored_context|
                         stored_context.clear_confirmation_state()
                     ))
                 } else {
                     info!("User {} has entered a incorrect confirmation code in message {:?}", user.user.id, message);
-                    Ok(context.put_part(message.text_reply(
+                    Ok(context.put_side_effect(message.text_reply(
                         format!("You have entered a incorrect confirmation code. Please, check input and try again.")
                     )))
                 }
@@ -78,7 +78,7 @@ impl ConfirmationResolver {
 
             ConfirmationResolverState::IncorrectCodeEntered { context, user, message  } => {
                 info!("User {} has entered a incorrect confirmation code in message {:?}", user.user.id, message);
-                Ok(context.put_part(message.text_reply(
+                Ok(context.put_side_effect(message.text_reply(
                     format!("You have entered a incorrect confirmation code. Please, check input and try again.")
                 )))
             }

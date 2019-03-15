@@ -1,10 +1,10 @@
-use crate::lib::telegram::Part;
+use crate::domain::side_effects::{SideEffect, SideEffectsSet, SideEffectReduceAction};
 use crate::domain::services::users::UserWithRoles;
 use crate::domain::services::context::StoredContext;
 
 pub struct Context {
     pub update: telegram_bot::Update,
-    pub parts: Vec<Box<Part>>,
+    pub side_effects: SideEffectsSet,
     pub user: Option<UserWithRoles>,
     pub stored_context: Option<StoredContext>
 }
@@ -13,14 +13,19 @@ impl Context {
     pub fn new(update: telegram_bot::Update) -> Self {
         Context {
             update,
-            parts: vec![],
+            side_effects: SideEffectsSet::empty(),
             user: None,
             stored_context: None
         }
     }
 
-    pub fn put_part<T: Into<Box<Part>>>(mut self, part: T) -> Self {
-        self.parts.push(part.into());
+    pub fn put_side_effect<T: Into<SideEffect>>(mut self, side_effect: T) -> Self {
+        self.side_effects = self.side_effects.put(side_effect);
+        self
+    }
+
+    pub fn reduce_side_effects<F: Fn(&SideEffect, usize) -> SideEffectReduceAction>(mut self, func: F) -> Self {
+        self.side_effects = self.side_effects.reduce(func);
         self
     }
 

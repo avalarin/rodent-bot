@@ -24,7 +24,7 @@ impl PipelineStage<Context, PipelineError> for HandleErrorStage {
                 let reply = message.text_reply(
                     format!("Error has occurred: {}", error)
                 );
-                Ok(copy.put_part(reply))
+                Ok(copy.put_side_effect(reply))
             } else {
                 Ok(copy)
             }

@@ -22,7 +22,7 @@ impl PipelineStage<Context, PipelineError> for ProcessStage {
                 let reply = message.text_reply(
                     format!("Hi, {}! You just wrote '{}'", &message.from.first_name, data)
                 );
-                return next.call(context.put_part(reply));
+                return next.call(context.put_side_effect(reply));
             }
         }
 

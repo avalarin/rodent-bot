@@ -54,7 +54,7 @@ impl AuthorizeStage {
             None => Ok(context),
             Some(message) => {
                 let resp = Self::resp_user_disabled(message);
-                Ok(context.put_part(resp))
+                Ok(context.put_side_effect(resp))
             }
         }
     }

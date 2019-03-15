@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use telegram_bot::Api;
+
 use crate::lib::pipeline::{Pipeline, PipelineBuilder};
 use crate::domain::error::PipelineError;
 use crate::domain::stages::*;
@@ -15,9 +17,11 @@ pub struct Pipelines {
 impl Pipelines {
     pub fn create(
         users: Arc<UsersService>,
-        context: Arc<ContextService>
+        context: Arc<ContextService>,
+        api: Arc<Api>
     ) -> Arc<Pipeline<Context, PipelineError>> {
         PipelineBuilder::new()
+            .next_stage(TelegramSideEffectsStage::new(api))
             .next_stage(HandleErrorStage::new())
             .next_stage(LoggingStage::new())
             .next_stage(IdentifyStage::new(users))
