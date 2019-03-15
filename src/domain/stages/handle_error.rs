@@ -5,13 +5,8 @@ use crate::domain::error::PipelineError;
 use crate::lib::pipeline::{Pipeline, PipelineStage};
 use telegram_bot::{UpdateKind, CanReplySendMessage};
 
+#[derive(new)]
 pub struct HandleErrorStage {
-}
-
-impl HandleErrorStage {
-    pub fn new() -> Self {
-        HandleErrorStage { }
-    }
 }
 
 impl PipelineStage<Context, PipelineError> for HandleErrorStage {

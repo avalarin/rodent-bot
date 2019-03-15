@@ -6,15 +6,8 @@ use crate::lib::pipeline::{Pipeline, PipelineStage};
 use telegram_bot::{UpdateKind, MessageKind};
 use telegram_bot::Message;
 
-pub struct LoggingStage {
-
-}
-
-impl LoggingStage {
-    pub fn new() -> Self {
-        LoggingStage {}
-    }
-}
+#[derive(new)]
+pub struct LoggingStage { }
 
 impl PipelineStage<Context, PipelineError> for LoggingStage {
     fn process(&self, context: Context, next: Arc<Pipeline<Context, PipelineError>>) -> Result<Context, PipelineError> {

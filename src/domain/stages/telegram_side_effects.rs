@@ -10,16 +10,9 @@ use crate::domain::side_effects::{
 
 use crate::lib::pipeline::{Pipeline, PipelineStage};
 
+#[derive(new)]
 pub struct TelegramSideEffectsStage {
     api: Arc<Api>
-}
-
-impl TelegramSideEffectsStage {
-    pub fn new(api: Arc<Api>) -> Self {
-        TelegramSideEffectsStage {
-            api
-        }
-    }
 }
 
 impl PipelineStage<Context, PipelineError> for TelegramSideEffectsStage {

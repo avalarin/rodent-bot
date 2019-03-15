@@ -5,15 +5,8 @@ use crate::domain::error::PipelineError;
 use crate::lib::pipeline::{Pipeline, PipelineStage};
 use telegram_bot::{UpdateKind, MessageKind, CanReplySendMessage};
 
-pub struct ProcessStage {
-
-}
-
-impl ProcessStage {
-    pub fn new() -> Self {
-        ProcessStage {}
-    }
-}
+#[derive(new)]
+pub struct ProcessStage { }
 
 impl PipelineStage<Context, PipelineError> for ProcessStage {
     fn process(&self, context: Context, next: Arc<Pipeline<Context, PipelineError>>) -> Result<Context, PipelineError> {

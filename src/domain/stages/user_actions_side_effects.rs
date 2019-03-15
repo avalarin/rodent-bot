@@ -9,16 +9,9 @@ use crate::domain::side_effects::{
 
 use crate::lib::pipeline::{Pipeline, PipelineStage};
 
+#[derive(new)]
 pub struct UserActionsSideEffectsStage {
     users: Arc<UsersService>
-}
-
-impl UserActionsSideEffectsStage {
-    pub fn new(users: Arc<UsersService>) -> Self {
-        UserActionsSideEffectsStage {
-            users
-        }
-    }
 }
 
 impl PipelineStage<Context, PipelineError> for UserActionsSideEffectsStage {

@@ -8,17 +8,12 @@ use crate::lib::pipeline::{Pipeline, PipelineStage};
 
 use telegram_bot::{User as TgUser};
 
+#[derive(new)]
 pub struct IdentifyStage {
     users: Arc<UsersService>
 }
 
 impl IdentifyStage {
-    pub fn new(users: Arc<UsersService>) -> Self {
-        IdentifyStage {
-            users
-        }
-    }
-
     fn identify(&self, context: Context, tg_user: TgUser) -> Result<Context, PipelineError> {
         let tg_user_id = TelegramUtils::get_user_id_from_user(&tg_user)
             .ok_or_else(|| PipelineError::UnsupportedMessageType {})?;

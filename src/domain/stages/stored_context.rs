@@ -5,14 +5,9 @@ use crate::domain::error::PipelineError;
 use crate::domain::services::context::ContextService;
 use crate::lib::pipeline::{Pipeline, PipelineStage};
 
+#[derive(new)]
 pub struct StoredContextStage {
     context: Arc<ContextService>
-}
-
-impl StoredContextStage {
-    pub fn new(context: Arc<ContextService>) -> Self {
-        StoredContextStage { context }
-    }
 }
 
 impl PipelineStage<Context, PipelineError> for StoredContextStage {
